@@ -130,6 +130,47 @@
     #search {
       margin-bottom: 15px;
     }
+     .confirm-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #00000066;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .confirm-window {
+      background: white;
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 5px 25px #00000033;
+    }
+
+    .confirm-window h2 {
+      margin-top: 0;
+    }
+
+    .confirm-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .confirm-buttons button {
+      margin-top: 0;
+    }
+
+    .confirm-cancel {
+      background: #eee;
+      color: #222;
+    }
+
+    .confirm-accept {
+      background: #d33;
+    }
   </style>
 </head>
 
