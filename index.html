@@ -279,11 +279,13 @@
   recognition.lang = "es-ES";
   recognition.start();
 
-  recognition.onresult = (event) => {
-    const texto = event.results[0][0].transcript;
+ recognition.onresult = (event) => {
+  const texto = event.results[0][0].transcript;
 
-    document.getElementById("resultadoVoz").textContent =
-      "Has dicho: " + texto;
+  document.getElementById("name").value = texto;
+
+  document.getElementById("resultadoVoz").textContent =
+    "Has dicho: " + texto;
   };
 }
   
