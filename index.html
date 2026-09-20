@@ -178,7 +178,24 @@
   </button>
 
 </div>
+<!-- Ventana de confirmación -->
+<div id="confirmBox" class="confirm-overlay">
+  <div class="confirm-window">
+    <h2 id="confirmTitle">🗑️ Confirmar</h2>
+    <p id="confirmMessage">¿Estás seguro?</p>
 
+    <div class="confirm-buttons">
+      <button id="confirmCancel" class="confirm-cancel">
+        Cancelar
+      </button>
+
+      <button id="confirmAccept" class="confirm-accept">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>
+  
 <script>
   const SUPABASE_URL = "https://szqagikpxrgcfibcifkw.supabase.co";
   const SUPABASE_KEY = "sb_publishable_YYuqrJJwhv7KnmBvXmonPg_dh3UZflh";
