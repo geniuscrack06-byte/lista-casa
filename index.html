@@ -163,7 +163,8 @@
 
     <button onclick="addProduct()">➕ Añadir producto</button>
   </div>
-
+    <button onclick="escucharVoz()">🎙️ Añadir por voz</button>
+    <p id="resultadoVoz"></p>
   <input id="search" placeholder="🔎 Buscar producto..." oninput="renderProducts()">
 
   <div class="section-title">🛒 Por comprar</div>
@@ -206,6 +207,28 @@
     renderProducts();
   }
 
+  function escucharVoz() {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert("Tu navegador no admite reconocimiento de voz.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "es-ES";
+    recognition.start();
+
+    recognition.onresult = (event) => {
+      const texto = event.results[0][0].transcript;
+
+      document.getElementById("resultadoVoz").textContent =
+        "Has dicho: " + texto;
+    };
+  }
+  
   async function addProduct() {
     const name = document.getElementById("name").value.trim();
     const quantity = document.getElementById("quantity").value.trim();
