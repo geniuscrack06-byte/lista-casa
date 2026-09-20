@@ -293,7 +293,49 @@
     products = data;
     renderProducts();
   }
+function interpretarComando(texto) {
+  texto = texto.toLowerCase().trim();
 
+  // Palabras que indican que queremos añadir algo
+  const acciones = [
+    "añade",
+    "añadir",
+    "agrega",
+    "agregar",
+    "compra",
+    "comprar",
+    "apunta",
+    "apuntar",
+    "pon",
+    "poner"
+  ];
+
+  // Quitamos la palabra inicial si existe
+  for (const accion of acciones) {
+    if (texto.startsWith(accion + " ")) {
+      texto = texto.slice(accion.length).trim();
+      break;
+    }
+  }
+
+  // Buscar cantidad al principio
+  const resultado = texto.match(
+    /^(\d+(?:[.,]\d+)?)\s*(kg|kilos|g|gramos|l|litros|ml|unidades|unidad)?\s*(?:de\s+)?(.+)$/i
+  );
+
+  if (resultado) {
+    return {
+      nombre: resultado[3].trim(),
+      cantidad: `${resultado[1]}${resultado[2] ? " " + resultado[2] : ""}`.trim()
+    };
+  }
+
+  // Si no hay cantidad
+  return {
+    nombre: texto,
+    cantidad: ""
+  };
+}
 function escucharVoz() {
   const SpeechRecognition =
     window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -329,9 +371,12 @@ function escucharVoz() {
       texto += event.results[i][0].transcript;
     }
 
-    resultado.textContent = "Has dicho: " + texto;
+resultado.textContent = "Has dicho: " + texto;
 
-    document.getElementById("name").value = texto;
+const datos = interpretarComando(texto);
+
+document.getElementById("name").value = datos.nombre;
+document.getElementById("quantity").value = datos.cantidad;
   };
 
   recognition.onend = () => {
