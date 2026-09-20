@@ -171,6 +171,31 @@
     .confirm-accept {
       background: #d33;
     }
+    .estado-voz {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+.escuchando {
+  background: #d33 !important;
+  animation: pulsar 1s infinite;
+}
+
+@keyframes pulsar {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.65;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
   </style>
 </head>
 
@@ -204,8 +229,12 @@
 
     <button onclick="addProduct()">➕ Añadir producto</button>
   </div>
-    <button onclick="escucharVoz()">🎙️ Añadir por voz</button>
-    <p id="resultadoVoz"></p>
+    <button id="botonVoz" onclick="escucharVoz()">🎙️ Añadir por voz</button>
+
+<div id="estadoVoz" class="estado-voz"></div>
+
+<p id="resultadoVoz"></p>
+  
   <input id="search" placeholder="🔎 Buscar producto..." oninput="renderProducts()">
 
   <div class="section-title">🛒 Por comprar</div>
@@ -265,7 +294,7 @@
     renderProducts();
   }
 
-  function escucharVoz() {
+function escucharVoz() {
   const SpeechRecognition =
     window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -277,15 +306,48 @@
   const recognition = new SpeechRecognition();
 
   recognition.lang = "es-ES";
+  recognition.interimResults = true;
+  recognition.continuous = false;
+
+  const boton = document.getElementById("botonVoz");
+  const estado = document.getElementById("estadoVoz");
+  const resultado = document.getElementById("resultadoVoz");
+
+  boton.textContent = "🔴 Escuchando...";
+  boton.classList.add("escuchando");
+
+  estado.textContent = "🎤 Estoy escuchando...";
+
+  resultado.textContent = "";
+
   recognition.start();
 
- recognition.onresult = (event) => {
-  const texto = event.results[0][0].transcript;
+  recognition.onresult = (event) => {
+    let texto = "";
 
-  document.getElementById("name").value = texto;
+    for (let i = 0; i < event.results.length; i++) {
+      texto += event.results[i][0].transcript;
+    }
 
-  document.getElementById("resultadoVoz").textContent =
-    "Has dicho: " + texto;
+    resultado.textContent = "Has dicho: " + texto;
+
+    document.getElementById("name").value = texto;
+  };
+
+  recognition.onend = () => {
+    boton.textContent = "🎙️ Añadir por voz";
+    boton.classList.remove("escuchando");
+
+    estado.textContent = "✅ He terminado de escuchar";
+  };
+
+  recognition.onerror = (event) => {
+    boton.textContent = "🎙️ Añadir por voz";
+    boton.classList.remove("escuchando");
+
+    estado.textContent = "❌ No he podido escuchar el audio";
+
+    console.error("Error de reconocimiento:", event.error);
   };
 }
   
