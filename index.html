@@ -294,7 +294,7 @@
     const note = document.getElementById("note").value.trim();
 
     if (!name || !quantity) {
-      alert("Escribe el producto y la cantidad.");
+      alert("Escribe el producto.");
       return;
     }
 
@@ -360,20 +360,24 @@ async function deleteProduct(id) {
 }
 
   async function deleteBought() {
-    if (!confirm("¿Borrar todos los productos comprados?")) return;
+  mostrarConfirmacion(
+    "🗑️ Borrar productos comprados",
+    "¿Quieres borrar todos los productos comprados?",
+    async () => {
+      const { error } = await supabaseClient
+        .from("productos")
+        .delete()
+        .eq("comprado", true);
 
-    const { error } = await supabaseClient
-      .from("productos")
-      .delete()
-      .eq("comprado", true);
+      if (error) {
+        console.error(error);
+        return;
+      }
 
-    if (error) {
-      console.error(error);
-      return;
+      await loadProducts();
     }
-
-    await loadProducts();
-  }
+  );
+}
 
   function renderProducts() {
     const pending = document.getElementById("pending");
