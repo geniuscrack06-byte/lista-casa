@@ -250,6 +250,24 @@
 </div>
 <!-- Ventana de confirmación -->
 <div id="confirmBox" class="confirm-overlay">
+  <!-- Ventana de productos detectados por voz -->
+<div id="vozBox" class="confirm-overlay">
+  <div class="confirm-window">
+    <h2>🎙️ Productos detectados</h2>
+
+    <div id="productosVoz"></div>
+
+    <div class="confirm-buttons">
+      <button id="vozCancelar" class="confirm-cancel">
+        Cancelar
+      </button>
+
+      <button id="vozConfirmar" class="confirm-accept">
+        ✅ Confirmar
+      </button>
+    </div>
+  </div>
+</div>
   <div class="confirm-window">
     <h2 id="confirmTitle">🗑️ Confirmar</h2>
     <p id="confirmMessage">¿Estás seguro?</p>
@@ -373,6 +391,38 @@ function interpretarComando(texto) {
     cantidad: ""
   };
 }
+  function interpretarVariosProductos(texto) {
+  texto = texto.toLowerCase().trim();
+
+  // Quitamos la acción inicial
+  const acciones = [
+    "añade",
+    "añadir",
+    "agrega",
+    "agregar",
+    "compra",
+    "comprar",
+    "apunta",
+    "apuntar",
+    "pon",
+    "poner"
+  ];
+
+  for (const accion of acciones) {
+    if (texto.startsWith(accion + " ")) {
+      texto = texto.slice(accion.length).trim();
+      break;
+    }
+  }
+
+  // Separar por "y" o por comas
+  const partes = texto
+    .split(/\s+y\s+|,\s*/)
+    .map(parte => parte.trim())
+    .filter(parte => parte);
+
+  return partes.map(parte => interpretarComando(parte));
+}
 function escucharVoz() {
   const SpeechRecognition =
     window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -381,7 +431,78 @@ function escucharVoz() {
     alert("Tu navegador no admite reconocimiento de voz.");
     return;
   }
+function mostrarProductosVoz(productos) {
+  const contenedor = document.getElementById("productosVoz");
 
+  contenedor.innerHTML = "";
+
+  productos.forEach((producto, index) => {
+    const elemento = document.createElement("div");
+
+    elemento.className = "producto-voz";
+
+    elemento.innerHTML = `
+      <input
+        class="voz-nombre"
+        data-index="${index}"
+        value="${escapeHtml(producto.nombre)}"
+      >
+
+      <input
+        class="voz-cantidad"
+        data-index="${index}"
+        value="${escapeHtml(producto.cantidad)}"
+        placeholder="Cantidad"
+      >
+    `;
+
+    contenedor.appendChild(elemento);
+  });
+
+  document.getElementById("vozBox").style.display = "flex";
+
+  document.getElementById("vozCancelar").onclick = () => {
+    document.getElementById("vozBox").style.display = "none";
+  };
+   document.getElementById("vozConfirmar").onclick = async () => {
+    const nombres = document.querySelectorAll(".voz-nombre");
+    const cantidades = document.querySelectorAll(".voz-cantidad");
+
+    const productosParaGuardar = [];
+
+    for (let i = 0; i < nombres.length; i++) {
+      const nombre = nombres[i].value.trim();
+      const cantidad = cantidades[i].value.trim();
+
+      if (!nombre) {
+        continue;
+      }
+
+      productosParaGuardar.push({
+        nombre: nombre,
+        cantidad: cantidad
+      });
+    }
+
+    if (productosParaGuardar.length === 0) {
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from("productos")
+      .insert(productosParaGuardar);
+
+    if (error) {
+      console.error(error);
+      alert("No se han podido añadir los productos.");
+      return;
+    }
+
+    document.getElementById("vozBox").style.display = "none";
+
+    await loadProducts();
+  };
+}
   const recognition = new SpeechRecognition();
 
   recognition.lang = "es-ES";
@@ -402,19 +523,18 @@ function escucharVoz() {
   recognition.start();
 
   recognition.onresult = (event) => {
-    let texto = "";
+  let texto = "";
 
-    for (let i = 0; i < event.results.length; i++) {
-      texto += event.results[i][0].transcript;
-    }
+  for (let i = 0; i < event.results.length; i++) {
+    texto += event.results[i][0].transcript;
+  }
 
-resultado.textContent = "Has dicho: " + texto;
+  resultado.textContent = "Has dicho: " + texto;
 
-const datos = interpretarComando(texto);
+  const productos = interpretarVariosProductos(texto);
 
-document.getElementById("name").value = datos.nombre;
-document.getElementById("quantity").value = datos.cantidad;
-  };
+  mostrarProductosVoz(productos);
+};
 
   recognition.onend = () => {
     boton.textContent = "🎙️ Añadir por voz";
