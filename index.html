@@ -208,29 +208,19 @@
   }
 
   function escucharVoz() {
-    alert("La función se está ejecutando");
-    
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-  alert("Reconocimiento encontrado: " + SpeechRecognition);
-    
-    if (!SpeechRecognition) {
-      alert("Tu navegador no admite reconocimiento de voz.");
-      return;
-    }
+  alert("1. La función funciona");
 
-    const recognition = new SpeechRecognition();
+  const SpeechRecognition = window.SpeechRecognition;
 
-    recognition.lang = "es-ES";
-    recognition.start();
+  alert("2. He comprobado SpeechRecognition");
 
-    recognition.onresult = (event) => {
-      const texto = event.results[0][0].transcript;
-
-      document.getElementById("resultadoVoz").textContent =
-        "Has dicho: " + texto;
-    };
+  if (!SpeechRecognition) {
+    alert("3. SpeechRecognition no está disponible");
+    return;
   }
+
+  alert("4. SpeechRecognition está disponible");
+}
   
   async function addProduct() {
     const name = document.getElementById("name").value.trim();
