@@ -208,18 +208,25 @@
   }
 
   function escucharVoz() {
-  alert("1. La función funciona");
-
-  const SpeechRecognition = window.SpeechRecognition;
-
-  alert("2. He comprobado SpeechRecognition");
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if (!SpeechRecognition) {
-    alert("3. SpeechRecognition no está disponible");
+    alert("Tu navegador no admite reconocimiento de voz.");
     return;
   }
 
-  alert("4. SpeechRecognition está disponible");
+  const recognition = new SpeechRecognition();
+
+  recognition.lang = "es-ES";
+  recognition.start();
+
+  recognition.onresult = (event) => {
+    const texto = event.results[0][0].transcript;
+
+    document.getElementById("resultadoVoz").textContent =
+      "Has dicho: " + texto;
+  };
 }
   
   async function addProduct() {
